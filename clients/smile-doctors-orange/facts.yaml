@@ -1,0 +1,25 @@
+{
+  "schema_type": "Dentist",
+  "telephone": "+1-714-771-0058",
+  "address": {
+    "street": "1042 N. Tustin Street",
+    "city": "Orange",
+    "region": "CA",
+    "postal_code": "92867",
+    "country": "US"
+  },
+  "services": [
+    "Dental cleanings",
+    "Dental implants",
+    "Dentures",
+    "Emergency dental care"
+  ],
+  "extra": {
+    "source_urls": [
+      "https://smiledoctorsorange.com/",
+      "https://smiledoctorsorange.com/our-office/"
+    ],
+    "verified_on": "2026-09-22",
+    "verification": "Public website only; legal name and operating hours not verified with owner."
+  }
+}

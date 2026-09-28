@@ -1,0 +1,19 @@
+{
+ "search_metadata": {
+  "status": "Success"
+ },
+ "ai_overview": {
+  "text_blocks": [
+   {
+    "type": "paragraph",
+    "snippet": "Smiles Dental in Orange is open weekdays."
+   }
+  ],
+  "references": [
+   {
+    "link": "https://smilesdental.example/",
+    "index": 0
+   }
+  ]
+ }
+}

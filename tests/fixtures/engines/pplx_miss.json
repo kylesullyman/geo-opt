@@ -1,0 +1,19 @@
+{
+ "id": "y",
+ "model": "sonar",
+ "choices": [
+  {
+   "index": 0,
+   "message": {
+    "role": "assistant",
+    "content": "Popular options in Orange include Orange Family Dentistry and Bright Smile Studio."
+   }
+  }
+ ],
+ "search_results": [
+  {
+   "title": "OFD",
+   "url": "https://orangefamilydentistry.example/"
+  }
+ ]
+}

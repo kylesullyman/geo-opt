@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI Visibility Report: {{ client.config.name }}</title>
+<style>
+  :root { --ink:#1b1f24; --mute:#667085; --line:#e4e7ec; --blocker:#b42318; --warning:#b54708; --info:#175cd3; --good:#067647; }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: var(--ink); margin: 0; }
+  main { max-width: 960px; margin: 0 auto; padding: 40px 32px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 15px; margin: 18px 0 6px; }
+  .meta, .mute { color: var(--mute); font-size: 12px; }
+  .cards { display: flex; gap: 12px; margin: 18px 0; }
+  .card { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .card .n { font-size: 26px; font-weight: 600; }
+  .sev { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; padding: 1px 7px; border-radius: 10px; color: #fff; }
+  .sev.blocker { background: var(--blocker); } .sev.warning { background: var(--warning); } .sev.info { background: var(--info); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; color: var(--mute); font-weight: 600; }
+  .finding { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin: 8px 0; page-break-inside: avoid; }
+  .finding .t { font-weight: 600; }
+  .finding .fix { margin-top: 4px; color: var(--good); }
+  code, .code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; background: #f6f7f9; padding: 1px 4px; border-radius: 4px; }
+  details { margin-top: 4px; } summary { cursor: pointer; color: var(--mute); font-size: 12px; }
+  pre { white-space: pre-wrap; word-break: break-word; font-size: 11px; background: #f6f7f9; padding: 8px; border-radius: 6px; max-height: 260px; overflow: auto; }
+  .rate { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .rate.zero { color: var(--blocker); font-weight: 600; }
+  .note { border-left: 3px solid var(--info); background: #f5f8ff; padding: 8px 12px; margin: 10px 0; font-size: 13px; }
+  .bar { display: inline-block; height: 8px; background: var(--good); border-radius: 4px; vertical-align: middle; }
+  @media print { main { padding: 0; } h2 { page-break-after: avoid; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>AI Visibility Report</h1>
+  <div><strong>{{ client.config.name }}</strong> &middot; {{ client.config.domain }}</div>
+  {% if client.facts.address %}<div class="meta">{{ client.facts.address.street }}, {{ client.facts.address.city }}, {{ client.facts.address.region }} {{ client.facts.address.postal_code }}{% if client.facts.telephone %} &middot; {{ client.facts.telephone }}{% endif %}</div>{% endif %}
+  {% if client.config.notes %}<p class="meta">{{ client.config.notes }}</p>{% endif %}
+  <div class="meta">
+    {% if latest %}Audit run <code>{{ latest.id }}</code> &middot; {{ latest.started_at.strftime('%B %-d, %Y %H:%M UTC') }}{% endif %}
+    {% if latest_citations %} &middot; Citation run <code>{{ latest_citations.id }}</code>{% endif %}
+    &middot; geo {{ tool_version }}
+  </div>
+
+  {% if latest %}
+  <div class="cards">
+    <div class="card"><div class="n" style="color:var(--blocker)">{{ counts.blocker }}</div>Blockers</div>
+    <div class="card"><div class="n" style="color:var(--warning)">{{ counts.warning }}</div>Warnings</div>
+    <div class="card"><div class="n" style="color:var(--info)">{{ counts.info }}</div>Notes</div>
+  </div>
+  {% endif %}
+
+  {% if latest %}
+  <div class="note">
+    <strong>Audit coverage:</strong> {{ latest.meta.get('checks_ran', [])|join(', ') }}.
+    {% if latest.meta.get('checks_skipped') %}Skipped checks: {{ latest.meta.get('checks_skipped')|join(', ') }}.{% endif %}
+    Citation status at the time of this site audit: {{ latest.meta.get('citation_status', 'unknown (older run)') }}.
+    {% for engine, reason in latest.meta.get('engines_skipped', {}).items() %}<div>{{ engine }}: {{ reason }}</div>{% endfor %}
+    {% for error in latest.meta.get('check_errors', []) %}<div>Check failed: {{ error.check }} — {{ error.error }}</div>{% endfor %}
+  </div>
+  {% endif %}
+  {% if not rate_rows %}
+  <div class="note"><strong>AI visibility was not measured.</strong> This report contains website readiness checks only; no AI mention or citation rate is available.</div>
+  {% endif %}
+  {% for f in findings if f.check_id in ['status.http_error', 'status.unreachable'] %}
+  <div class="note"><strong>Page coverage limited:</strong> {{ f.title }}. Content and schema checks cannot assess this page. This crawler observation does not establish how actual AI engines access the site.</div>
+  {% endfor %}
+
+  {% if rate_rows %}
+  <h2>Are AI engines mentioning {{ client.config.name }}?</h2>
+  {% if browser_capture %}
+  <div class="note"><strong>Actual ChatGPT browser observations</strong> — {{ browser_capture.captured_samples }}/{{ browser_capture.planned_samples }} planned samples captured; status: {{ browser_capture.citation_status }}.
+    Captured manually from a signed-in session. Model labels are recorded as displayed, not independently verified. Account settings and location can affect results. A small sample is exploratory, not a population-wide visibility score.
+  </div>
+  <details><summary>Browser capture conditions and evidence</summary><table>
+    <tr><th>Query / sample</th><th>Observed</th><th>Model / search</th><th>Session</th><th>Evidence</th></tr>
+    {% for o in browser_capture.observations %}<tr><td>{{ o.query_id }} / {{ o.sample_idx + 1 }}</td><td>{{ o.observed_at }}</td><td>{{ o.model_label }}<br>Search: {{ o.search_used }}</td><td>{{ o.session }}<br>Personalization: {{ o.personalization }}</td><td><code>{{ o.raw_ref[:12] }}</code>{% if o.conversation_url %}<br><a href="{{ o.conversation_url }}">Conversation</a>{% endif %}{% if o.error %}<br>{{ o.error }}{% endif %}</td></tr>{% endfor %}
+  </table></details>
+  {% endif %}
+  <div class="note">
+    Each number is a <strong>rate over repeated samples</strong>: the same question asked N times, because AI answers vary run to run.
+    "Mentioned" means the answer text names the business, its domain, phone, or address. "Cited" means the engine linked to {{ client.config.domain }}.
+    {% if locality %}Query locality: <strong>{{ locality.city }}{% if locality.region %}, {{ locality.region }}{% endif %}</strong>. {% if browser_capture %}Location is in the query text; browser location was not pinned.{% else %}Location parameters were supplied where supported.{% endif %}{% endif %}
+  </div>
+  <table>
+    <tr>
+      <th>Query</th><th>Engine</th>
+      {% for e in entities %}<th>{{ client.config.name if e == 'client' else e }}</th>{% endfor %}
+      <th>Cited</th>
+    </tr>
+    {% for row in rate_rows %}
+    {% set r = row.by['client'] %}
+    <tr>
+      <td>{{ row.query }}</td>
+      <td>{{ row.engine }}{% if row.empty %}<div class="mute">{{ row.empty }}/{{ r.n }} no AI Overview shown</div>{% endif %}{% if r.errors %}<div class="mute">{{ r.errors }} failed</div>{% endif %}</td>
+      {% for e in entities %}
+      {% set er = row.by[e] %}
+      <td class="rate {% if e == 'client' and er.n and er.mentioned == 0 %}zero{% endif %}">{{ er.label }}</td>
+      {% endfor %}
+      <td class="rate">{{ r.cited }}/{{ r.n }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <h3>What each engine measures</h3>
+  <table>
+    {% for e, s in surfaces.items() %}<tr><td><strong>{{ e }}</strong></td><td>{{ s }}</td></tr>{% endfor %}
+  </table>
+  {% endif %}
+
+  {% if trend %}
+  <h2>Visibility over time</h2>
+  <p class="mute">Mention rate pooled across all tracked queries, per citation run ({{ n_citation_runs }} runs).</p>
+  <table>
+    <tr><th>Run</th><th>Engine</th><th>Mentioned</th><th></th></tr>
+    {% for p in trend %}
+    <tr><td>{{ p.at[:10] }}</td><td>{{ p.engine }}</td><td class="rate">{{ p.mentioned }}/{{ p.n }} ({{ p.rate|pct }})</td>
+      <td style="width:40%"><span class="bar" style="width: {{ ((p.rate or 0) * 100)|round }}%"></span></td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  {% if diff %}
+  <h2>Changes since previous audit</h2>
+  <p>{{ diff.new|length }} new &middot; {{ diff.resolved|length }} resolved &middot; {{ diff.persisting|length }} unchanged</p>
+  {% if diff.resolved %}<h3>Resolved</h3><ul>{% for f in diff.resolved %}<li><span class="sev {{ f.severity.value }}">{{ f.severity.value }}</span> {{ f.title }}</li>{% endfor %}</ul>{% endif %}
+  {% if diff.new %}<h3>New</h3><ul>{% for f in diff.new %}<li><span class="sev {{ f.severity.value }}">{{ f.severity.value }}</span> {{ f.title }}</li>{% endfor %}</ul>{% endif %}
+  {% endif %}
+
+  {% if findings %}
+  <h2>Findings</h2>
+  {% for f in findings %}
+  <div class="finding">
+    <div><span class="sev {{ f.severity.value }}">{{ f.severity.value }}</span> <span class="t">{{ f.title }}</span></div>
+    <div class="mute"><code>{{ f.check_id }}</code>{% if f.raw_ref %} &middot; evidence <code>{{ f.raw_ref[:12] }}</code>{% endif %}</div>
+    {% if f.fix %}<div class="fix">&rarr; {{ f.fix.summary }}</div>{% endif %}
+    {% if f.evidence %}<details><summary>Evidence</summary><pre>{{ f.evidence|tojson(indent=2) }}</pre></details>{% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <h2>Method</h2>
+  <p class="mute">
+    Site checks fetch the live site with a declared crawler user-agent and evaluate robots.txt per crawler using RFC 9309 rules.
+    AI crawlers are reported in two groups: <strong>answer-time retrieval</strong> bots (what AI can say about the business today) and
+    <strong>training</strong> bots (what future models learn); blocking the latter is a legitimate policy choice.
+    Every raw HTTP response and AI completion is stored verbatim and referenced by hash, so any number here can be traced to its source.
+  </p>
+</main>
+</body>
+</html>

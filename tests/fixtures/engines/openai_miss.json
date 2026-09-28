@@ -1,0 +1,18 @@
+{
+ "id": "resp_2",
+ "model": "gpt-5-mini",
+ "output": [
+  {
+   "type": "message",
+   "id": "msg_2",
+   "role": "assistant",
+   "content": [
+    {
+     "type": "output_text",
+     "text": "Consider Bright Smile Studio.",
+     "annotations": []
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_type": "AutoRepair",
+  "telephone": "+1-714-551-9343",
+  "address": {
+    "street": "1188 N Batavia St",
+    "city": "Orange",
+    "region": "CA",
+    "postal_code": "92867",
+    "country": "US"
+  },
+  "services": [
+    "Brake repair",
+    "Oil changes",
+    "Tire repair",
+    "Mufflers and exhaust"
+  ],
+  "extra": {
+    "source_urls": [
+      "https://orangeempireautorepair.com/contact/"
+    ],
+    "verified_on": "2026-09-22",
+    "verification": "Public website only; legal name and operating hours not verified with owner."
+  }
+}

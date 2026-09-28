@@ -1,0 +1,8 @@
+name: Smiles Dental
+domain: smilesdental.example
+aliases: [Smiles Dental Orange]
+pages: [/, /services]
+competitors:
+  - {name: Orange Family Dentistry, domain: orangefamilydentistry.example}
+cms: wordpress
+training_bots: unchanged

@@ -1,0 +1,24 @@
+{
+  "schema_type": "Bakery",
+  "telephone": null,
+  "address": {
+    "street": "125 N Tustin St",
+    "city": "Orange",
+    "region": "CA",
+    "postal_code": "92867",
+    "country": "US"
+  },
+  "services": [
+    "Croissants",
+    "Pastries",
+    "Desserts"
+  ],
+  "extra": {
+    "source_urls": [
+      "https://queenisabellasbakery.com/",
+      "https://queenisabellasbakery.com/menu"
+    ],
+    "verified_on": "2026-09-22",
+    "verification": "Public website only; legal name and operating hours not verified with owner."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "defaults": {
+    "samples": 5,
+    "engines": [
+      "perplexity",
+      "openai",
+      "google_aio"
+    ],
+    "locality": {
+      "city": "Orange",
+      "region": "California",
+      "country": "US",
+      "timezone": "America/Los_Angeles",
+      "serp_location": "Orange,California,United States"
+    }
+  },
+  "queries": [
+    {
+      "id": "discovery-1",
+      "text": "family dentist in Orange CA 92867",
+      "intent": "discovery"
+    },
+    {
+      "id": "discovery-2",
+      "text": "dental implants in Orange CA",
+      "intent": "discovery"
+    },
+    {
+      "id": "discovery-3",
+      "text": "emergency dentist in Orange CA 92867",
+      "intent": "discovery"
+    }
+  ]
+}

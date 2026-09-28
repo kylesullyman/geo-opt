@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ChatGPT capture · {{ plan.profile.config.name }}</title>
+<style>
+body{font:16px/1.5 system-ui,sans-serif;background:#f3f6f8;color:#182735;margin:0}main{max-width:850px;margin:auto;padding:32px 24px}h1{font-size:30px;margin-bottom:4px}h2{font-size:20px}p{margin:8px 0 16px}.muted{color:#546676;font-size:14px}.card{background:white;border:1px solid #d6e0e7;border-radius:12px;padding:24px;margin:20px 0}label{display:block;font-weight:600;margin:16px 0 5px}textarea,input,select{font:inherit;box-sizing:border-box;width:100%;padding:10px;border:1px solid #a4b4c0;border-radius:6px}textarea{min-height:130px}input[type=checkbox]{width:auto}button,.button{display:inline-block;font:inherit;cursor:pointer;border:1px solid #bccbd5;border-radius:7px;padding:9px 15px;background:white;color:#183d54;text-decoration:none;margin:4px 6px 4px 0}button.primary{background:#126452;color:white;border-color:#126452}pre{white-space:pre-wrap;background:#eef4f5;padding:16px;border-radius:6px}#message{color:#9c3029;white-space:pre-wrap}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:600px){.grid{grid-template-columns:1fr}}.check{font-weight:400}.notice{border-left:4px solid #126452;padding-left:14px}
+</style></head><body><main>
+<p class="muted">GEO / CHATGPT BROWSER OBSERVATIONS</p>
+<h1>{{ plan.profile.config.name }}</h1>
+<p>Capture the answers customers actually see in ChatGPT.</p>
+<div class="notice"><p>This page stays on your computer. Use ChatGPT in your usual signed-in browser. No API key or account connection is needed here.</p></div>
+<ol><li>Start a <strong>fresh chat for each sample</strong>, preferably a temporary chat. Keep the model and personalization settings consistent.</li><li>Ask the exact question below without adding the business name or requesting a preferred answer. Wait until the response finishes.</li><li>Copy the entire answer here. Review its cited source links separately; copying text may omit citations.</li><li>Record the visible model and settings, then save the sample. Download the capture file when finished.</li></ol>
+<p class="muted">Location is expressed in the question; GEO cannot pin the browser’s location. These observations describe your account/session, not every ChatGPT user.</p>
+<section class="card">
+<label for="job">Question / sample</label><select id="job"></select>
+<pre id="prompt"></pre><button id="copy">Copy question</button><a class="button" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT</a>
+<form id="form">
+<label for="answer">Complete answer — paste verbatim</label><textarea id="answer" rows="8"></textarea>
+<label for="urls">URLs actually cited in this answer — one per line</label><textarea id="urls" rows="3" placeholder="https://example.com/page"></textarea>
+<p class="muted">Use the answer’s citation links. Do not include every search result or infer a business website. Leave empty if the answer has no citations.</p>
+<div class="grid"><div><label for="model">Model label shown in ChatGPT</label><input id="model" required placeholder="Exact label, or unknown"></div><div><label for="search">Did ChatGPT visibly search the web?</label><select id="search"><option value="unknown">Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></div></div>
+<div class="grid"><div><label for="session">Fresh conversation type</label><select id="session"><option value="temporary">Temporary chat</option><option value="new_chat">New regular chat</option></select></div><div><label for="personalization">Personalization / memory / custom instructions</label><select id="personalization"><option value="unknown">Unknown</option><option value="off">Off</option><option value="on">On</option></select></div></div>
+<label for="conversation">Conversation URL (optional; do not create a public share link)</label><input id="conversation" type="url" placeholder="https://chatgpt.com/c/...">
+<label for="observed">Observation time (UTC; filled when answer is first pasted)</label><input id="observed" required placeholder="2026-09-23T18:30:00.000Z">
+<label for="error">Failure reason, only if no answer was obtained</label><input id="error" placeholder="For example: usage limit reached">
+<label for="notes">Notes (optional)</label><input id="notes" placeholder="Any unusual conditions or model fallback">
+<label class="check"><input type="checkbox" id="reviewed"> I checked the cited links, including when there were none.</label>
+<label class="check"><input type="checkbox" id="complete" required> I used a fresh conversation and copied the finished answer completely, or recorded the failure.</label>
+<button class="primary" type="submit">Save sample</button><button type="button" id="next">Next sample</button>
+</form></section>
+<section class="card"><h2>Save and import</h2><p id="progress"></p><p class="muted">Saved samples are kept in this browser’s local storage when available. Download a backup before closing. A batch can be imported only once; finish collecting before importing.</p>
+<button class="primary" id="download">Download capture JSON</button><label for="restore">Resume from a downloaded capture file</label><input id="restore" type="file" accept=".json,application/json">
+<p>Import the downloaded file from your GEO project directory:</p><pre>uv run geo browser import {{ plan.client }} /path/to/downloaded-capture.json
+uv run geo report {{ plan.client }}</pre>
+<p class="muted">Partial batches require <code>--allow-partial</code> and are labeled incomplete. Unsaved fields are not exported.</p></section>
+<p id="message" role="status"></p>
+<script id="plan" type="application/json">{{ plan|tojson }}</script>
+<script>
+const plan=JSON.parse(document.getElementById('plan').textContent), $=id=>document.getElementById(id), key='geo-capture-'+plan.batch_id;
+let records={}, selected=0, dirty=false;
+const id=j=>j.query_id+':'+j.sample_idx;
+function message(t){$('message').textContent=t;}
+try{records=JSON.parse(localStorage.getItem(key)||'{}');}catch(e){message('Local storage unavailable. Download regularly to preserve your work.');}
+function progress(){ $('progress').textContent=Object.keys(records).length+' / '+plan.jobs.length+' samples saved'; }
+function render(){
+ dirty=false;
+ $('job').replaceChildren(); plan.jobs.forEach((j,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(records[id(j)]?'✓ ':'')+j.prompt+' — sample '+(j.sample_idx+1);$('job').append(o);});$('job').value=selected;
+ const j=plan.jobs[selected], r=records[id(j)]||{}; $('prompt').textContent=j.prompt;
+ for(const [field,prop] of Object.entries({answer:'answer_text',model:'model_label',conversation:'conversation_url',observed:'observed_at',error:'error',notes:'notes'}))$(field).value=r[prop]||'';
+ $('urls').value=(r.cited_urls||[]).join('\n');$('search').value=r.search_used||'unknown';$('session').value=r.session||'temporary';$('personalization').value=r.personalization||'unknown';$('reviewed').checked=!!r.citations_reviewed;$('complete').checked=!!r.complete;progress();
+}
+$('form').addEventListener('input',()=>{dirty=true;});
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+$('job').onchange=()=>{if(dirty&&!confirm('Discard unsaved changes to this sample?')){$('job').value=selected;return;}selected=Number($('job').value);render();};
+$('next').onclick=()=>{if(dirty&&!confirm('Discard unsaved changes to this sample?'))return;selected=(selected+1)%plan.jobs.length;render();};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(plan.jobs[selected].prompt);message('Question copied. Start a fresh ChatGPT conversation.');}catch(e){message('Select and copy the question above manually.');}};
+$('answer').addEventListener('input',()=>{if(!$('observed').value)$('observed').value=new Date().toISOString();});
+$('error').addEventListener('input',()=>{if(!$('observed').value)$('observed').value=new Date().toISOString();});
+$('form').onsubmit=e=>{e.preventDefault();const j=plan.jobs[selected],error=$('error').value.trim()||null,answer=$('answer').value,urls=$('urls').value.split('\n').map(x=>x.trim()).filter(Boolean);
+ if(error&&(answer.trim()||urls.length)){message('For a failed attempt, clear the answer and URLs.');return;}
+ if(!error&&(!answer.trim()||!$('reviewed').checked)){message('Paste the full answer and confirm that you reviewed citations.');return;}
+ try{urls.forEach(u=>{const p=new URL(u);if(!['https:','http:'].includes(p.protocol)||p.username||p.password)throw Error();});}catch(e){message('Each citation must be a full HTTP(S) URL without credentials.');return;}
+ const at=new Date($('observed').value);if(!Number.isFinite(at.getTime())||at.getTime()>Date.now()+300000){message('Enter a valid observation time, not in the future.');return;}
+ records[id(j)]={query_id:j.query_id,sample_idx:j.sample_idx,prompt:j.prompt,answer_text:answer,cited_urls:urls,observed_at:at.toISOString(),model_label:$('model').value.trim(),conversation_url:$('conversation').value.trim()||null,search_used:$('search').value,session:$('session').value,personalization:$('personalization').value,citations_reviewed:$('reviewed').checked,complete:$('complete').checked,error,notes:$('notes').value};
+ try{localStorage.setItem(key,JSON.stringify(records));message('Sample saved.');}catch(e){message('Sample saved in this tab only. Download a backup now.');}render();};
+$('download').onclick=()=>{if(!Object.keys(records).length){message('Save at least one observation first.');return;}const bundle={format:plan.format,batch_id:plan.batch_id,client:plan.client,observations:Object.values(records)};const u=URL.createObjectURL(new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download=plan.client+'-'+plan.batch_id+'-capture.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);message('Downloaded saved samples. Finish the batch before importing into GEO.');};
+$('restore').onchange=async()=>{try{const b=JSON.parse(await $('restore').files[0].text());if(b.batch_id!==plan.batch_id||b.client!==plan.client||b.format!==plan.format||!Array.isArray(b.observations))throw Error('Wrong capture batch.');const incoming={};for(const r of b.observations){const j=plan.jobs.find(j=>id(j)===id(r));if(!j||j.prompt!==r.prompt||incoming[id(r)])throw Error('Unknown or duplicate sample.');incoming[id(r)]=r;}records={...records,...incoming};try{localStorage.setItem(key,JSON.stringify(records));}catch(e){}render();message('Restored capture file.');}catch(e){message('Could not restore: '+e.message);}};
+render();
+</script></main></body></html>

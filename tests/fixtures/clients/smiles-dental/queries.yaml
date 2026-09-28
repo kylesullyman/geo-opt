@@ -1,0 +1,12 @@
+defaults:
+  samples: 5
+  engines: [perplexity, openai, google_aio]
+  locality:
+    city: Orange
+    region: California
+    country: US
+    timezone: America/Los_Angeles
+    serp_location: "Orange,California,United States"
+queries:
+  - {id: best-dentist, text: best dentist in Orange CA, intent: discovery}
+  - {id: emergency, text: emergency dentist Orange CA open today, intent: urgent}

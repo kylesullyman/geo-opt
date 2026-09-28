@@ -1,0 +1,19 @@
+legal_name: Smiles Dental Group, Inc.
+schema_type: Dentist
+telephone: "+1-714-555-0142"
+email: hello@smilesdental.example
+address:
+  street: 123 North Glassell Street, Suite 4
+  city: Orange
+  region: CA
+  postal_code: "92866"
+geo: {latitude: 33.7879, longitude: -117.8531}
+hours:
+  - {days: [Mo, Tu, We, Th], opens: "08:00", closes: "17:00"}
+  - {days: [Fr], opens: "08:00", closes: "13:00"}
+service_area: [Orange, Villa Park, Tustin]
+services: [Cleanings, Crowns, Invisalign, Emergency dental care during business hours]
+price_range: $$
+insurance_accepted: [Delta Dental, MetLife, Cigna]
+languages: [English, Spanish]
+same_as: [https://www.yelp.com/biz/smiles-dental-orange]

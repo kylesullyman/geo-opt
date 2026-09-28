@@ -1,0 +1,49 @@
+{
+ "search_metadata": {
+  "status": "Success"
+ },
+ "ai_overview": {
+  "text_blocks": [
+   {
+    "type": "paragraph",
+    "snippet": "Several well-reviewed dentists serve Orange, CA:",
+    "reference_indexes": [
+     0
+    ]
+   },
+   {
+    "type": "list",
+    "list": [
+     {
+      "title": "Smiles Dental:",
+      "snippet": "Family practice on Glassell St.",
+      "reference_indexes": [
+       0
+      ]
+     },
+     {
+      "title": "Orange Family Dentistry:",
+      "snippet": "Long-running practice.",
+      "reference_indexes": [
+       1
+      ]
+     }
+    ]
+   }
+  ],
+  "references": [
+   {
+    "title": "Smiles Dental",
+    "link": "https://smilesdental.example/#:~:text=x",
+    "source": "Smiles",
+    "index": 0
+   },
+   {
+    "title": "OFD",
+    "link": "https://orangefamilydentistry.example/",
+    "source": "OFD",
+    "index": 1
+   }
+  ]
+ }
+}

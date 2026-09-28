@@ -1,0 +1,41 @@
+{
+ "id": "resp_1",
+ "model": "gpt-5-mini",
+ "output": [
+  {
+   "type": "web_search_call",
+   "id": "ws_1",
+   "status": "completed",
+   "action": {
+    "type": "search",
+    "query": "best dentist Orange CA",
+    "sources": [
+     {
+      "type": "url",
+      "url": "https://www.yelp.com/x"
+     }
+    ]
+   }
+  },
+  {
+   "type": "message",
+   "id": "msg_1",
+   "role": "assistant",
+   "content": [
+    {
+     "type": "output_text",
+     "text": "You could try the practice reachable at (714) 555-0142, or Orange Family Dentistry.",
+     "annotations": [
+      {
+       "type": "url_citation",
+       "start_index": 0,
+       "end_index": 10,
+       "url": "https://orangefamilydentistry.example/?utm_source=chatgpt.com",
+       "title": "OFD"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

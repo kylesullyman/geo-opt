@@ -1,0 +1,27 @@
+{
+ "id": "x",
+ "model": "sonar",
+ "choices": [
+  {
+   "index": 0,
+   "message": {
+    "role": "assistant",
+    "content": "Top-rated dentists in Orange, CA include **Smiles Dental** (123 N Glassell St) and Orange Family Dentistry. [1][2]"
+   }
+  }
+ ],
+ "search_results": [
+  {
+   "title": "Smiles Dental",
+   "url": "https://www.smilesdental.example/"
+  },
+  {
+   "title": "Yelp",
+   "url": "https://www.yelp.com/search?find_desc=dentist&find_loc=Orange"
+  }
+ ],
+ "citations": [
+  "https://www.smilesdental.example/",
+  "https://www.yelp.com/search?find_desc=dentist&find_loc=Orange"
+ ]
+}
